@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_app/home_screen/controller/home_screen_controller.dart';
 import 'package:ui_app/home_screen/models/product.dart';
 import 'package:ui_app/home_screen/widget/row_border.dart';
 import 'package:ui_app/utils/app_colors.dart';
@@ -12,9 +13,13 @@ class HomePageContainer extends StatelessWidget {
     super.key,
     this.isLast = false,
     required this.product,
+    required this.controller,
+    required this.index,
   });
+  final int index;
   final bool isLast;
   final Product product;
+  final HomeScreenController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +84,11 @@ class HomePageContainer extends StatelessWidget {
                     SizedBox(
                       height: AppSize.height(value: 12.0),
                     ),
-                    getWidget(product.isClick ?? false),
+                    getWidget(
+                      index: index,
+                      value: product.isClick ?? false,
+                      controller: controller,
+                    ),
                   ],
                 ),
               ],
@@ -99,29 +108,46 @@ class HomePageContainer extends StatelessWidget {
   }
 }
 
-Widget getWidget(bool value) {
+Widget getWidget({
+  required bool value,
+  required int index,
+  required HomeScreenController controller,
+}) {
   return value
       ? Container(
           padding: EdgeInsets.symmetric(horizontal: AppSize.width(value: 4.0), vertical: AppSize.height(value: 4.5)),
           decoration: BoxDecoration(border: Border.all(color: AppColors.primary)),
           child: Row(
             children: [
-              Icon(Icons.remove),
+              GestureDetector(
+                  onTap: () {
+                    controller.decrement(index);
+                  },
+                  child: Icon(Icons.remove)),
               AppText(
-                text: "25",
+                text: controller.listOfProduct[index].quantity.toString(),
                 fontWeight: FontWeight.bold,
               ),
-              Icon(Icons.add)
+              GestureDetector(
+                  onTap: () {
+                    controller.increment(index);
+                  },
+                  child: Icon(Icons.add))
             ],
           ),
         )
-      : Container(
-          padding: EdgeInsets.symmetric(horizontal: AppSize.width(value: 16), vertical: AppSize.height(value: 4.5)),
-          decoration: BoxDecoration(border: Border.all(color: AppColors.primary)),
-          child: AppText(
-            text: "Add",
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
+      : GestureDetector(
+          onTap: () {
+            controller.addButton(index);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: AppSize.width(value: 16), vertical: AppSize.height(value: 4.5)),
+            decoration: BoxDecoration(border: Border.all(color: AppColors.primary)),
+            child: AppText(
+              text: "Add",
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         );
 }
